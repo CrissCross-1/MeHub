@@ -72,116 +72,476 @@ local MainTab = Window:CreateTab("Main/Misc", 4483362458) -- Title, Image
    end,
 })
 
-     local Toggle = Tab:CreateToggle({
-   Name = "Fullbright",
-   CurrentValue = false,
-   Flag = "FullbrightToggle", -- A flag is the identifier for the configuration file; make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-   Callback = function(Value)
-        if not _G.FullBrightExecuted then
+     local Button = MainTab:CreateButton({
+   Name = "Fullbright ",
+   Callback = function()
+        local Lighting = game:GetService("Lighting")
+local player = game.Players.LocalPlayer
+local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+screenGui.Name = "FullbrightUI"
 
-	_G.FullBrightEnabled = false
+local toggleBtn = Instance.new("TextButton", screenGui)
+toggleBtn.Size = UDim2.new(0, 120, 0, 40)
+toggleBtn.Position = UDim2.new(0.5, -60, 0.05, 0) -- Top center
+toggleBtn.Text = "Fullbright: OFF"
+toggleBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleBtn.Draggable = true
 
-	_G.NormalLightingSettings = {
-		Brightness = game:GetService("Lighting").Brightness,
-		ClockTime = game:GetService("Lighting").ClockTime,
-		FogEnd = game:GetService("Lighting").FogEnd,
-		GlobalShadows = game:GetService("Lighting").GlobalShadows,
-		Ambient = game:GetService("Lighting").Ambient
-	}
+local enabled = false
+local connections = {}
 
-	game:GetService("Lighting"):GetPropertyChangedSignal("Brightness"):Connect(function()
-		if game:GetService("Lighting").Brightness ~= 1 and game:GetService("Lighting").Brightness ~= _G.NormalLightingSettings.Brightness then
-			_G.NormalLightingSettings.Brightness = game:GetService("Lighting").Brightness
-			if not _G.FullBrightEnabled then
-				repeat
-					wait()
-				until _G.FullBrightEnabled
-			end
-			game:GetService("Lighting").Brightness = 1
-		end
-	end)
-
-	game:GetService("Lighting"):GetPropertyChangedSignal("ClockTime"):Connect(function()
-		if game:GetService("Lighting").ClockTime ~= 12 and game:GetService("Lighting").ClockTime ~= _G.NormalLightingSettings.ClockTime then
-			_G.NormalLightingSettings.ClockTime = game:GetService("Lighting").ClockTime
-			if not _G.FullBrightEnabled then
-				repeat
-					wait()
-				until _G.FullBrightEnabled
-			end
-			game:GetService("Lighting").ClockTime = 12
-		end
-	end)
-
-	game:GetService("Lighting"):GetPropertyChangedSignal("FogEnd"):Connect(function()
-		if game:GetService("Lighting").FogEnd ~= 786543 and game:GetService("Lighting").FogEnd ~= _G.NormalLightingSettings.FogEnd then
-			_G.NormalLightingSettings.FogEnd = game:GetService("Lighting").FogEnd
-			if not _G.FullBrightEnabled then
-				repeat
-					wait()
-				until _G.FullBrightEnabled
-			end
-			game:GetService("Lighting").FogEnd = 786543
-		end
-	end)
-
-	game:GetService("Lighting"):GetPropertyChangedSignal("GlobalShadows"):Connect(function()
-		if game:GetService("Lighting").GlobalShadows ~= false and game:GetService("Lighting").GlobalShadows ~= _G.NormalLightingSettings.GlobalShadows then
-			_G.NormalLightingSettings.GlobalShadows = game:GetService("Lighting").GlobalShadows
-			if not _G.FullBrightEnabled then
-				repeat
-					wait()
-				until _G.FullBrightEnabled
-			end
-			game:GetService("Lighting").GlobalShadows = false
-		end
-	end)
-
-	game:GetService("Lighting"):GetPropertyChangedSignal("Ambient"):Connect(function()
-		if game:GetService("Lighting").Ambient ~= Color3.fromRGB(178, 178, 178) and game:GetService("Lighting").Ambient ~= _G.NormalLightingSettings.Ambient then
-			_G.NormalLightingSettings.Ambient = game:GetService("Lighting").Ambient
-			if not _G.FullBrightEnabled then
-				repeat
-					wait()
-				until _G.FullBrightEnabled
-			end
-			game:GetService("Lighting").Ambient = Color3.fromRGB(178, 178, 178)
-		end
-	end)
-
-	game:GetService("Lighting").Brightness = 1
-	game:GetService("Lighting").ClockTime = 12
-	game:GetService("Lighting").FogEnd = 786543
-	game:GetService("Lighting").GlobalShadows = false
-	game:GetService("Lighting").Ambient = Color3.fromRGB(178, 178, 178)
-
-	local LatestValue = true
-	spawn(function()
-		repeat
-			wait()
-		until _G.FullBrightEnabled
-		while wait() do
-			if _G.FullBrightEnabled ~= LatestValue then
-				if not _G.FullBrightEnabled then
-					game:GetService("Lighting").Brightness = _G.NormalLightingSettings.Brightness
-					game:GetService("Lighting").ClockTime = _G.NormalLightingSettings.ClockTime
-					game:GetService("Lighting").FogEnd = _G.NormalLightingSettings.FogEnd
-					game:GetService("Lighting").GlobalShadows = _G.NormalLightingSettings.GlobalShadows
-					game:GetService("Lighting").Ambient = _G.NormalLightingSettings.Ambient
-				else
-					game:GetService("Lighting").Brightness = 1
-					game:GetService("Lighting").ClockTime = 12
-					game:GetService("Lighting").FogEnd = 786543
-					game:GetService("Lighting").GlobalShadows = false
-					game:GetService("Lighting").Ambient = Color3.fromRGB(178, 178, 178)
-				end
-				LatestValue = not LatestValue
-			end
-		end
-	end)
+local function setFullbright(state)
+    enabled = state
+    if enabled then
+        toggleBtn.Text = "Fullbright: ON"
+        toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+        
+        -- Apply settings
+        Lighting.Ambient = Color3.fromRGB(255, 255, 255)
+        Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
+        Lighting.GlobalShadows = false
+        
+        -- Lock settings (Anti-Reset)
+        connections.Ambient = Lighting:GetPropertyChangedSignal("Ambient"):Connect(function()
+            if enabled then Lighting.Ambient = Color3.fromRGB(255, 255, 255) end
+        end)
+        connections.Outdoor = Lighting:GetPropertyChangedSignal("OutdoorAmbient"):Connect(function()
+            if enabled then Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255) end
+        end)
+        connections.Shadows = Lighting:GetPropertyChangedSignal("GlobalShadows"):Connect(function()
+            if enabled then Lighting.GlobalShadows = false end
+        end)
+    else
+        toggleBtn.Text = "Fullbright: OFF"
+        toggleBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+        
+        -- Disconnect locks
+        for _, conn in pairs(connections) do conn:Disconnect() end
+        connections = {}
+        
+        -- Restore default-ish lighting
+        Lighting.Ambient = Color3.fromRGB(127, 127, 127)
+        Lighting.OutdoorAmbient = Color3.fromRGB(127, 127, 127)
+        Lighting.GlobalShadows = true
+    end
 end
 
-_G.FullBrightExecuted = true
-_G.FullBrightEnabled = not _G.FullBrightEnabled
+toggleBtn.MouseButton1Click:Connect(function()
+    setFullbright(not enabled)
+end)
+
    end,
 })
+
+local Button = MainTab:CreateButton({
+   Name = "Rejoin Server (INSTANT) ",
+   Callback = function()
+	    local TeleportService = game:GetService("TeleportService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- Rejoin the same server instance
+TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer)
+
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "Fog Remover",
+   Callback = function()
+         local Lighting = game:GetService("Lighting")
+local player = game.Players.LocalPlayer
+local UIS = game:GetService("UserInputService")
+
+-- UI Setup
+local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+screenGui.Name = "FogRemoverUI"
+
+local toggleBtn = Instance.new("TextButton", screenGui)
+toggleBtn.Size = UDim2.new(0, 130, 0, 40)
+toggleBtn.Position = UDim2.new(0.5, -65, 0.1, 0)
+toggleBtn.Text = "Fog Remover: OFF"
+toggleBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleBtn.Draggable = true
+
+local fogEnabled = false
+local connections = {}
+
+local function setFog(state)
+    fogEnabled = state
+    if fogEnabled then
+        toggleBtn.Text = "Fog Remover: ON"
+        toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+        
+        -- Remove Fog
+        Lighting.FogEnd = 9e9
+        Lighting.FogStart = 9e9
+        
+        -- Anti-Reset: Prevents the game from bringing fog back
+        connections.End = Lighting:GetPropertyChangedSignal("FogEnd"):Connect(function()
+            if fogEnabled then Lighting.FogEnd = 9e9 end
+        end)
+        connections.Start = Lighting:GetPropertyChangedSignal("FogStart"):Connect(function()
+            if fogEnabled then Lighting.FogStart = 9e9 end
+        end)
+    else
+        toggleBtn.Text = "Fog Remover: OFF"
+        toggleBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+        
+        -- Stop forcing settings
+        for _, conn in pairs(connections) do conn:Disconnect() end
+        connections = {}
+        
+        -- Restore default-ish fog (Roblox default is usually 100,000 or game-specific)
+        Lighting.FogEnd = 100000
+        Lighting.FogStart = 0
+    end
+end
+
+toggleBtn.MouseButton1Click:Connect(function()
+    setFog(not fogEnabled)
+end)
+ 
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "X-ray (see through walls)",
+   Callback = function()
+         local player = game.Players.LocalPlayer
+local mouse = player:GetMouse()
+local RunService = game:GetService("RunService")
+
+-- Main UI setup
+local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+screenGui.Name = "XrayHubUI"
+
+local frame = Instance.new("Frame", screenGui)
+frame.Size = UDim2.new(0, 220, 0, 160)
+frame.Position = UDim2.new(0.5, -110, 0.2, 0)
+frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+frame.Active = true
+frame.Draggable = true
+
+-- Toggle Button
+local toggleBtn = Instance.new("TextButton", frame)
+toggleBtn.Size = UDim2.new(0, 200, 0, 40)
+toggleBtn.Position = UDim2.new(0, 10, 0, 10)
+toggleBtn.Text = "X-Ray: OFF"
+toggleBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+toggleBtn.TextColor3 = Color3.new(1,1,1)
+
+-- Slider Bar
+local sliderBar = Instance.new("Frame", frame)
+sliderBar.Size = UDim2.new(0, 200, 0, 10)
+sliderBar.Position = UDim2.new(0, 10, 0, 85)
+sliderBar.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+
+local sliderBtn = Instance.new("TextButton", sliderBar)
+sliderBtn.Size = UDim2.new(0, 20, 0, 20)
+sliderBtn.Position = UDim2.new(0.5, -10, -0.5, 0)
+sliderBtn.Text = ""
+sliderBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+
+local valLabel = Instance.new("TextLabel", frame)
+valLabel.Size = UDim2.new(0, 200, 0, 20)
+valLabel.Position = UDim2.new(0, 10, 0, 60)
+valLabel.BackgroundTransparency = 1
+valLabel.TextColor3 = Color3.new(1,1,1)
+valLabel.Text = "Transparency: 0.5"
+
+-- Destroy Button
+local destroyBtn = Instance.new("TextButton", frame)
+destroyBtn.Size = UDim2.new(0, 200, 0, 30)
+destroyBtn.Position = UDim2.new(0, 10, 0, 120)
+destroyBtn.Text = "Destroy Script"
+destroyBtn.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+destroyBtn.TextColor3 = Color3.new(1,1,1)
+
+-- Xray Logic
+local xrayEnabled = false
+local transparencyValue = 0.5
+local dragging = false
+
+local function updateXray()
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("BasePart") and not obj.Parent:FindFirstChild("Humanoid") then
+            obj.LocalTransparencyModifier = xrayEnabled and transparencyValue or 0
+        end
+    end
+end
+
+-- Slider functionality
+sliderBtn.MouseButton1Down:Connect(function() dragging = true end)
+game:GetService("UserInputService").InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+end)
+
+RunService.RenderStepped:Connect(function()
+    if dragging then
+        local mousePos = game:GetService("UserInputService"):GetMouseLocation().X
+        local relativePos = mousePos - sliderBar.AbsolutePosition.X
+        local percentage = math.clamp(relativePos / sliderBar.AbsoluteSize.X, 0, 1)
+        sliderBtn.Position = UDim2.new(percentage, -10, -0.5, 0)
+        transparencyValue = percentage
+        valLabel.Text = "Transparency: " .. string.format("%.2f", transparencyValue)
+        if xrayEnabled then updateXray() end
+    end
+end)
+
+-- Button Listeners
+toggleBtn.MouseButton1Click:Connect(function()
+    xrayEnabled = not xrayEnabled
+    toggleBtn.Text = xrayEnabled and "X-Ray: ON" or "X-Ray: OFF"
+    toggleBtn.BackgroundColor3 = xrayEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+    updateXray()
+end)
+
+destroyBtn.MouseButton1Click:Connect(function()
+    xrayEnabled = false
+    updateXray()
+    screenGui:Destroy()
+end)
+
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "ESP (FULLPACK VERSION)",
+   Callback = function()
+        local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Camera = workspace.CurrentCamera
+local LocalPlayer = Players.LocalPlayer
+
+local ESP = {
+    Enabled = false,
+    Boxes = true,
+    Tracers = true,
+    Names = true,
+    Distance = true,
+    Color = Color3.fromRGB(255, 255, 255)
+}
+
+local Cache = {}
+
+-- UI Setup
+local ScreenGui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 200, 0, 260)
+MainFrame.Position = UDim2.new(0.05, 0, 0.4, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+local function createBtn(text, pos, callback)
+    local btn = Instance.new("TextButton", MainFrame)
+    btn.Size = UDim2.new(0, 180, 0, 30)
+    btn.Position = pos
+    btn.Text = text
+    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    btn.TextColor3 = Color3.new(1,1,1)
+    btn.MouseButton1Click:Connect(callback)
+    return btn
+end
+
+-- Toggle Logic
+local masterBtn = createBtn("ESP: OFF", UDim2.new(0, 10, 0, 10), function()
+    ESP.Enabled = not ESP.Enabled
+end)
+
+createBtn("Toggle Boxes", UDim2.new(0, 10, 0, 45), function() ESP.Boxes = not ESP.Boxes end)
+createBtn("Toggle Tracers", UDim2.new(0, 10, 0, 80), function() ESP.Tracers = not ESP.Tracers end)
+createBtn("Change Color (Cycle)", UDim2.new(0, 10, 0, 115), function()
+    ESP.Color = Color3.fromHSV(tick() % 5 / 5, 1, 1)
+end)
+
+local destroyBtn = createBtn("Destroy Script", UDim2.new(0, 10, 0, 210), function()
+    ESP.Enabled = false
+    task.wait(0.1)
+    for _, v in pairs(Cache) do
+        for _, draw in pairs(v) do draw:Remove() end
+    end
+    ScreenGui:Destroy()
+end)
+
+-- Rendering Logic
+local function createDraw(type, properties)
+    local draw = Drawing.new(type)
+    for i, v in pairs(properties) do draw[i] = v end
+    return draw
+end
+
+local function addPlayer(plr)
+    Cache[plr] = {
+        Box = createDraw("Square", {Thickness = 1, Filled = false, Transparency = 1}),
+        Tracer = createDraw("Line", {Thickness = 1, Transparency = 1}),
+        Text = createDraw("Text", {Size = 18, Center = true, Outline = true})
+    }
+end
+
+Players.PlayerAdded:Connect(addPlayer)
+for _, v in pairs(Players:GetPlayers()) do if v ~= LocalPlayer then addPlayer(v) end end
+
+RunService.RenderStepped:Connect(function()
+    masterBtn.Text = ESP.Enabled and "ESP: ON" or "ESP: OFF"
+    masterBtn.BackgroundColor3 = ESP.Enabled and Color3.fromRGB(0, 150, 0) or Color3.fromRGB(150, 0, 0)
+
+    for plr, draws in pairs(Cache) do
+        local char = plr.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        local hum = char and char:FindFirstChild("Humanoid")
+        
+        if ESP.Enabled and hrp and hum and hum.Health > 0 then
+            local pos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
+            if onScreen then
+                local size = (Camera:WorldToViewportPoint(hrp.Position - Vector3.new(0, 3, 0)).Y - Camera:WorldToViewportPoint(hrp.Position + Vector3.new(0, 2.6, 0)).Y)
+                
+                -- Box
+                draws.Box.Visible = ESP.Boxes
+                draws.Box.Size = Vector2.new(size * 0.6, size)
+                draws.Box.Position = Vector2.new(pos.X - draws.Box.Size.X / 2, pos.Y - draws.Box.Size.Y / 2)
+                draws.Box.Color = ESP.Color
+
+                -- Tracer
+                draws.Tracer.Visible = ESP.Tracers
+                draws.Tracer.From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
+                draws.Tracer.To = Vector2.new(pos.X, pos.Y + size/2)
+                draws.Tracer.Color = ESP.Color
+
+                -- Text (Name + Dist)
+                draws.Text.Visible = ESP.Names
+                local dist = math.floor((hrp.Position - Camera.CFrame.Position).Magnitude)
+                draws.Text.Text = string.format("%s [%sm]", plr.Name, dist)
+                draws.Text.Position = Vector2.new(pos.X, pos.Y - size/2 - 20)
+                draws.Text.Color = ESP.Color
+            else
+                for _, v in pairs(draws) do v.Visible = false end
+            end
+        else
+            for _, v in pairs(draws) do v.Visible = false end
+        end
+    end
+end)
+
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "TP infront of Player",
+   Callback = function()
+        local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+
+local targetPlayer = nil
+local bringing = false
+local connection
+
+-- UI Setup
+local screenGui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
+screenGui.Name = "BringerUI"
+screenGui.ResetOnSpawn = false -- THIS PREVENTS IT FROM BEING DESTROYED ON DEATH
+
+local frame = Instance.new("Frame", screenGui)
+frame.Size = UDim2.new(0, 200, 0, 160)
+frame.Position = UDim2.new(0.5, -100, 0.3, 0)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.Active = true
+frame.Draggable = true
+
+-- Text Box for Username
+local textBox = Instance.new("TextBox", frame)
+textBox.Size = UDim2.new(0, 180, 0, 35)
+textBox.Position = UDim2.new(0, 10, 0, 10)
+textBox.PlaceholderText = "Enter Username..."
+textBox.Text = ""
+textBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+textBox.TextColor3 = Color3.new(1,1,1)
+
+-- Toggle Button
+local toggleBtn = Instance.new("TextButton", frame)
+toggleBtn.Size = UDim2.new(0, 180, 0, 40)
+toggleBtn.Position = UDim2.new(0, 10, 0, 55)
+toggleBtn.Text = "Bring: OFF"
+toggleBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+toggleBtn.TextColor3 = Color3.new(1,1,1)
+
+-- Destroy Button
+local destroyBtn = Instance.new("TextButton", frame)
+destroyBtn.Size = UDim2.new(0, 180, 0, 35)
+destroyBtn.Position = UDim2.new(0, 10, 0, 105)
+destroyBtn.Text = "Destroy Script"
+destroyBtn.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+destroyBtn.TextColor3 = Color3.new(1,1,1)
+
+-- Find Player Function
+local function getPlayer(name)
+    name = name:lower()
+    for _, p in pairs(Players:GetPlayers()) do
+        if p.Name:lower():sub(1, #name) == name or p.DisplayName:lower():sub(1, #name) == name then
+            return p
+        end
+    end
+    return nil
+end
+
+-- Bring Logic
+local function toggleBring()
+    bringing = not bringing
+    if bringing then
+        targetPlayer = getPlayer(textBox.Text)
+        if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            toggleBtn.Text = "Bring: ON"
+            toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+            
+            connection = RunService.Heartbeat:Connect(function()
+                local myChar = LocalPlayer.Character
+                local myRoot = myChar and myChar:FindFirstChild("HumanoidRootPart")
+                
+                if bringing and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") and myRoot then
+                    local targetPos = targetPlayer.Character.HumanoidRootPart.CFrame
+                    myRoot.CFrame = targetPos * CFrame.new(0, 0, -3)
+                end
+            end)
+        else
+            bringing = false
+            textBox.Text = "Player Not Found"
+            task.wait(1)
+            textBox.Text = ""
+        end
+    else
+        toggleBtn.Text = "Bring: OFF"
+        toggleBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+        if connection then connection:Disconnect() end
+    end
+end
+
+toggleBtn.MouseButton1Click:Connect(toggleBring)
+
+destroyBtn.MouseButton1Click:Connect(function()
+    bringing = false
+    if connection then connection:Disconnect() end
+    screenGui:Destroy()
+end)
+
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "Re-Animator",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/STEVE-916-create/Uhhhhhh/main/source/reanim.lua"))()
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "Universal Aimbot and ESP",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/uchoroid/UniversalAimbotEsp/main/Universal-Aimbot-Esp", true))()
+   end,
+})
+
+local HubsTab = Window:CreateTab("Tab Example", 4483362458) -- Title, Image
