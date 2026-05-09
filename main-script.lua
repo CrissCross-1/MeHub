@@ -27,19 +27,22 @@ local Window = Rayfield:CreateWindow({
       RememberJoins = true -- Set this to false to make them join the Discord every time they load it up
    },
 
-   KeySystem = false, -- Set this to true to use our key system
+   KeySystem = true, -- Set this to true to use our key system
    KeySettings = {
-      Title = "Untitled",
+      Title = "Key",
       Subtitle = "Key System",
-      Note = "No method of obtaining the key is provided", -- Use this to tell the user how to get a key
+      Note = "ONLY FEW TRUSTED PEOPLE KNOW THE KEY", -- Use this to tell the user how to get a key
       FileName = "Key", -- It is recommended to use something unique, as other scripts using Rayfield may overwrite your key file
       SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
       GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
-      Key = {"Hello"} -- List of keys that the system will accept, can be RAW file links (pastebin, github, etc.) or simple strings ("hello", "key22")
+      Key = {"6_7"} -- List of keys that the system will accept, can be RAW file links (pastebin, github, etc.) or simple strings ("hello", "key22")
    }
 })
 
 local MainTab = Window:CreateTab("Main/Misc", 4483362458) -- Title, Image
+local ScriptTab = Window:CreateTab("Scripts", 4483362458) -- Title, Image
+local HubTab = Window:CreateTab("Script Hubs", 4483362458) -- Title, Image
+
 
       local Button = MainTab:CreateButton({
    Name = "Fly",
@@ -530,18 +533,91 @@ end)
    end,
 })
 
-local Button = MainTab:CreateButton({
+local Button = ScriptTab:CreateButton({
    Name = "Re-Animator",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/STEVE-916-create/Uhhhhhh/main/source/reanim.lua"))()
    end,
 })
 
-local Button = MainTab:CreateButton({
+local Button = ScriptTab:CreateButton({
    Name = "Universal Aimbot and ESP",
    Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/uchoroid/UniversalAimbotEsp/main/Universal-Aimbot-Esp", true))()
    end,
 })
 
-local HubsTab = Window:CreateTab("Tab Example", 4483362458) -- Title, Image
+local Button = HubTab:CreateButton({
+   Name = "Speed Hub X - KEYLESS",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
+   end,
+})
+
+local Button = HubTab:CreateButton({
+   Name = "HOHO HUB - KEY",
+   Callback = function()
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/acsu123/HOHO_H/main/Loading_UI'))()
+   end,
+})
+
+local Button = HubTab:CreateButton({
+   Name = "XVC HUB - KEYLESS",
+   Callback = function()
+        loadstring(game:HttpGet("https://pastebin.com/raw/Piw5bqGq"))()
+   end,
+})
+
+local Button = HubTab:CreateButton({
+   Name = "REDZ HUB - KEY",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/huy384/redzHub/refs/heads/main/redzHub.lua"))()
+   end,
+})
+
+local Button = ScriptTab:CreateButton({
+   Name = "Nameless Admin",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/ltseverydayyou/Nameless-Admin/main/Source.lua"))()
+   end,
+})
+
+local Button = ScriptTab:CreateButton({
+   Name = "Infinite Yield",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/DarkNetworks/Infinite-Yield/main/latest.lua"))()
+   end,
+})
+
+local Button = HubTab:CreateButton({
+   Name = "Dex Hub - KEY",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Dexploits/DexHub/main/Dex%20Hub.lua"))()
+   end,
+})
+
+local Button = ScriptTab:CreateButton({
+   Name = "F3X BTOOLS - Not FE",
+   Callback = function()
+        loadstring(game:GetObjects("rbxassetid://6695644299")[1].Source)()
+   end,
+})
+
+local Button = ScriptTab:CreateButton({
+   Name = "Jerk Y",
+   Callback = function()
+        loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Jerk-Off-V2-25567"))()
+
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/dqtixz/kyuu-is-fire/refs/heads/main/and%20projeto%20lkb%20Super%20Ring"))()
+
+   end,
+})
+
+local Button = ScriptTab:CreateButton({
+   Name = "TP To Player",
+   Callback = function()
+        loadstring(game:HttpGet(("https://raw.githubusercontent.com/Telxr/Teleportica/refs/heads/main/Telepo")))()
+   end,
+})
+
+Rayfield:LoadConfiguration()
