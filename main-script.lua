@@ -620,4 +620,164 @@ local Button = ScriptTab:CreateButton({
    end,
 })
 
+local Button = MainTab:CreateButton({
+   Name = "Shiftlock - MOBILE ONLY",
+   Callback = function()
+       local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Player = Players.LocalPlayer
+
+local shiftLockEnabled = false
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "MobileShiftlock"
+local success, coreGui = pcall(function() return game:GetService("CoreGui") end)
+ScreenGui.Parent = success and coreGui or Player:WaitForChild("PlayerGui")
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 70, 0, 70)
+MainFrame.Position = UDim2.new(0.8, 0, 0.7, 0)
+MainFrame.BackgroundTransparency = 1
+MainFrame.Parent = ScreenGui
+
+local Button = Instance.new("TextButton")
+Button.Size = UDim2.new(1, 0, 1, 0)
+Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Button.Text = "LOCK"
+Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+Button.Font = Enum.Font.SourceSansBold
+Button.Parent = MainFrame
+Instance.new("UICorner", Button).CornerRadius = UDim.new(1, 0)
+
+local DestroyBtn = Instance.new("TextButton")
+DestroyBtn.Size = UDim2.new(0, 20, 0, 20)
+DestroyBtn.Position = UDim2.new(0.8, 0, 0, 0)
+DestroyBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+DestroyBtn.Text = "X"
+DestroyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+DestroyBtn.TextSize = 10
+DestroyBtn.Parent = MainFrame
+Instance.new("UICorner", DestroyBtn).CornerRadius = UDim.new(1, 0)
+
+-- Draggable Logic
+local dragging, dragStart, startPos
+MainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true; dragStart = input.Position; startPos = MainFrame.Position
+    end
+end)
+UIS.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.Touch then
+        local delta = input.Position - dragStart
+        MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+UIS.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.Touch then dragging = false end end)
+
+local function toggle()
+    shiftLockEnabled = not shiftLockEnabled
+    Button.BackgroundColor3 = shiftLockEnabled and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(30, 30, 30)
+end
+
+local connection = RunService.RenderStepped:Connect(function()
+    if shiftLockEnabled and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+        local look = workspace.CurrentCamera.CFrame.LookVector
+        Player.Character.HumanoidRootPart.CFrame = CFrame.new(Player.Character.HumanoidRootPart.Position, Player.Character.HumanoidRootPart.Position + Vector3.new(look.X, 0, look.Z))
+    end
+end)
+
+Button.MouseButton1Click:Connect(toggle)
+DestroyBtn.MouseButton1Click:Connect(function()
+    connection:Disconnect()
+    ScreenGui:Destroy()
+end)
+
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "Shiftlock - PC ONLY",
+   Callback = function()
+        local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Player = Players.LocalPlayer
+
+local shiftLockEnabled = false
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "PCShiftlock"
+local success, coreGui = pcall(function() return game:GetService("CoreGui") end)
+ScreenGui.Parent = success and coreGui or Player:WaitForChild("PlayerGui")
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 120, 0, 40)
+MainFrame.Position = UDim2.new(0.85, 0, 0.85, 0)
+MainFrame.BackgroundTransparency = 1
+MainFrame.Parent = ScreenGui
+
+local Button = Instance.new("TextButton")
+Button.Size = UDim2.new(1, 0, 1, 0)
+Button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Button.Text = "Shiftlock: OFF"
+Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+Button.Parent = MainFrame
+
+local DestroyBtn = Instance.new("TextButton")
+DestroyBtn.Size = UDim2.new(0, 20, 0, 20)
+DestroyBtn.Position = UDim2.new(1, -10, 0, -10)
+DestroyBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+DestroyBtn.Text = "X"
+DestroyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+DestroyBtn.Parent = MainFrame
+
+-- Draggable Logic
+local dragging, dragStart, startPos
+MainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true; dragStart = input.Position; startPos = MainFrame.Position
+    end
+end)
+UIS.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+UIS.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end end)
+
+local function toggle()
+    shiftLockEnabled = not shiftLockEnabled
+    Button.Text = shiftLockEnabled and "Shiftlock: ON" or "Shiftlock: OFF"
+    Button.BackgroundColor3 = shiftLockEnabled and Color3.fromRGB(0, 180, 0) or Color3.fromRGB(0, 0, 0)
+    UIS.MouseBehavior = shiftLockEnabled and Enum.MouseBehavior.LockCenter or Enum.MouseBehavior.Default
+end
+
+local connection = RunService.RenderStepped:Connect(function()
+    if shiftLockEnabled and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+        local look = workspace.CurrentCamera.CFrame.LookVector
+        Player.Character.HumanoidRootPart.CFrame = CFrame.new(Player.Character.HumanoidRootPart.Position, Player.Character.HumanoidRootPart.Position + Vector3.new(look.X, 0, look.Z))
+    end
+end)
+
+Button.MouseButton1Click:Connect(toggle)
+UIS.InputBegan:Connect(function(i, p) if not p and i.KeyCode == Enum.KeyCode.LeftShift then toggle() end end)
+
+DestroyBtn.MouseButton1Click:Connect(function()
+    connection:Disconnect()
+    UIS.MouseBehavior = Enum.MouseBehavior.Default
+    ScreenGui:Destroy()
+end)
+
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "Delta Mobile Keyboard",
+   Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Xxtan31/Ata/main/deltakeyboardcrack.txt", true))()
+   end,
+})
+
 Rayfield:LoadConfiguration()
